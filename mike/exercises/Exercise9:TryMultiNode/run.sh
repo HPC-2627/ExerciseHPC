@@ -1,55 +1,55 @@
 #!/bin/bash
 
-# Job name visible in qstat
+# Nome del job (visibile in qstat)
 #PBS -N mpi_reduce_multinode
 
-# Request 2 chunks, each with 4 CPUs and 2GB of RAM
+# Richiede 2 chunk, ciascuno con 4 CPU e 2 GB di RAM
 #PBS -l select=2:ncpus=4:mem=2gb
 
 # =========================================================================
-# PBS PLACEMENT STRATEGIES (Uncomment ONLY ONE option at a time)
-# scatter is currently active
+# STRATEGIE DI POSIZIONAMENTO PBS (decommentare UNA SOLA opzione alla volta)
+# Attualmente e' attiva scatter
 # =========================================================================
 
-# 1. PACK: Groups the chunks on nodes to use as few nodes as possible[cite: 2]
-#    (Processes are placed close together on the same node if possible)
+# 1. PACK: raggruppa i chunk sui nodi usando il minor numero di nodi possibile
+#    (i processi vengono messi vicini, sullo stesso nodo, se possibile)
 # #PBS -l place=pack
 
-# 2. SCATTER: Distributes chunks across as many different nodes as possible[cite: 3]
-#    (Maximizes the physical separation of processes on distinct nodes)
+# 2. SCATTER: distribuisce i chunk sul maggior numero possibile di nodi diversi
+#    (massimizza la separazione fisica dei processi su nodi distinti)
 #PBS -l place=scatter
 
-# 3. PACK + EXCL: Groups chunks on the same node ensuring exclusive access[cite: 4]
-#    (No other user can share the resources of the assigned nodes)
+# 3. PACK + EXCL: raggruppa i chunk sullo stesso nodo con accesso esclusivo
+#    (nessun altro utente puo' condividere le risorse dei nodi assegnati)
 # #PBS -l place=pack:excl
 
-# 4. SCATTER + EXCL: Distributes chunks across different nodes with exclusive allocation[cite: 5]
-#    (Maximum physical separation and hardware resources entirely dedicated to the job)
+# 4. SCATTER + EXCL: distribuisce i chunk su nodi diversi con allocazione esclusiva
+#    (massima separazione fisica e hardware interamente dedicato al job)
 # #PBS -l place=scatter:excl
 
 # =========================================================================
 
-# Maximum execution time limit (walltime)
+# Tempo massimo di esecuzione (walltime)
 #PBS -l walltime=00:05:00
 
-# Specify the execution queue on the cluster
+# Coda di esecuzione sul cluster
 #PBS -q shortCPUQ
 
-# Redirect standard output and standard error
+# Redirige output standard ed errori su file fissi
 #PBS -o mpi_reduce_multinode.log
 #PBS -e mpi_reduce_multinode.err
 
-# Navigate to the original working directory from which the job was submitted
+# Torna nella cartella da cui e' stato sottomesso il job
 cd $PBS_O_WORKDIR
 
-# Load the OpenMPI module and the compatible GCC compiler
+# Carica OpenMPI e il compilatore GCC compatibile
 module load OpenMPI/4.1.5-GCC-12.3.0
 
-# Clean up previous compilations
+# Elimina le compilazioni precedenti
 make clean
 
-# Compile the C source code via Makefile
+# Compila il sorgente C tramite Makefile
 make
 
-# Run the MPI program across 8 total processes using the PBS hostfile to map slots correctly
+# Esegue il programma MPI su 8 processi totali, usando l'hostfile di PBS per mappare correttamente gli slot
 mpiexec -n 8 --hostfile $PBS_NODEFILE ./reduce_mpi

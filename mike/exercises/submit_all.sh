@@ -1,6 +1,7 @@
 #!/bin/bash
+# Sottomette alla coda PBS tutti gli esercizi, uno dopo l'altro.
 
-# List of all exercise directories
+# Elenco delle cartelle degli esercizi
 DIRS=(
     "Exercise1:Communication"
     "Exercise2:Communication"
@@ -13,27 +14,28 @@ DIRS=(
 )
 
 echo "================================================="
-echo "    Submitting all exercises to PBS queue...     "
+echo "  Sottomissione di tutti gli esercizi a PBS...   "
 echo "================================================="
 
 for dir in "${DIRS[@]}"; do
     if [ -d "$dir" ]; then
-        echo "--> Entering directory: $dir"
+        echo "--> Entro nella cartella: $dir"
         cd "$dir" || continue
         
+        # Sottometti lo script solo se esiste
         if [ -f "run.sh" ]; then
-            echo "   Submitting $dir/run.sh..."
+            echo "   Sottometto $dir/run.sh..."
             qsub run.sh
         else
-            echo "   [WARNING] run.sh not found in $dir"
+            echo "   [ATTENZIONE] run.sh non trovato in $dir"
         fi
         
-        # Return to root directory
+        # Torna alla cartella principale
         cd ..
     else
-        echo "   [ERROR] Directory $dir not found"
+        echo "   [ERRORE] Cartella $dir non trovata"
     fi
     echo "-------------------------------------------------"
 done
 
-echo "Submission completed! Check status using 'qstat -u $USER'."
+echo "Sottomissione completata! Controlla lo stato con 'qstat -u $USER'."

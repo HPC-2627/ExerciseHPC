@@ -1,34 +1,34 @@
 #!/bin/bash
 
-# Set the name of the batch job (visible in qstat)
+# Nome del job (visibile in qstat)
 #PBS -N mpi_allreduce_ex
 
-# Request 1 compute node with 8 processor cores on that single node
+# Richiede 1 nodo di calcolo con 8 core su quell'unico nodo
 #PBS -l nodes=1:ppn=8
 
-# Set the maximum wall-clock time limit for the job
+# Tempo massimo di esecuzione (walltime)
 #PBS -l walltime=00:02:00
 
-# Specify the target execution queue on the cluster
+# Coda del cluster in cui eseguire il job
 #PBS -q shortCPUQ
 
-# Redirect standard output to a fixed log file
+# Redirige l'output standard su un file di log fisso
 #PBS -o mpi_allreduce_ex.log
 
-# Redirect standard error to a fixed error file
+# Redirige lo standard error su un file di errori fisso
 #PBS -e mpi_allreduce_ex.err
 
-# Navigate back to the exact directory where the qsub command was submitted from
+# Torna nella cartella esatta da cui e' stato lanciato qsub
 cd $PBS_O_WORKDIR
 
-# Load the required OpenMPI module and its matching GCC compiler toolchain
+# Carica il modulo OpenMPI con il relativo compilatore GCC
 module load OpenMPI/4.1.5-GCC-12.3.0
 
-# Remove any previously compiled binaries or leftover log files for a clean build
+# Elimina eseguibili e file precedenti per ripartire da una compilazione pulita
 make clean
 
-# Compile the C source code using the Makefile and mpicc
+# Compila il sorgente C usando il Makefile (mpicc)
 make
 
-# Launch the compiled MPI program across 8 parallel processes
+# Lancia il programma MPI compilato su 8 processi in parallelo
 mpirun -np 8 ./allreduce_mpi

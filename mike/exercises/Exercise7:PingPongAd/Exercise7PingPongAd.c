@@ -1,102 +1,104 @@
 /*
-========================EXERCISE 7: PING PONG GAME==============================================================================
-Communication hands-on
-Implement a "ping pong" game using MPI send and receive.
+========================ESERCIZIO 7: PARTITA DI PING PONG=======================================================================
+Esercitazione sulla comunicazione
+Implementare una partita di "ping pong" con send e receive di MPI.
 
-======================RULES OF THE GAME:======================================================================================
-1. PARTICIPANTS: Process 0 (Player 1) and Process 1 (Player 2).
-2. DATA EXCHANGED: An array `ball_data[2]` where:
-   - ball_data[0] = bounce count (tracking number of successful hits)
-   - ball_data[1] = ball position on the table (visual state identifier)
-3. ITERATIONS & EXIT CONDITION:
-   - The game continues back and forth until `bounce_count` reaches MAX_BOUNCES (10).
-   - Once MAX_BOUNCES is reached, the loop terminates and the game ends.
-4. VISUAL REPRESENTATION:
-   - ASCII visual representation printed to stdout showing the table and ball position at each hit.
+======================REGOLE DEL GIOCO:=======================================================================================
+1. PARTECIPANTI: il processo 0 (Giocatore 1) e il processo 1 (Giocatore 2).
+2. DATI SCAMBIATI: un array `ball_data[2]` dove:
+   - ball_data[0] = contatore dei rimbalzi (numero di colpi riusciti)
+   - ball_data[1] = posizione della pallina sul tavolo (stato visivo)
+3. ITERAZIONI E CONDIZIONE DI USCITA:
+   - La partita continua avanti e indietro finche' `bounce_count` raggiunge MAX_BOUNCES (10).
+   - Raggiunto MAX_BOUNCES il ciclo termina e la partita finisce.
+4. RAPPRESENTAZIONE VISIVA:
+   - Viene stampata su stdout una rappresentazione ASCII del tavolo e della pallina a ogni colpo.
 */
 
 #include <mpi.h>
 #include <stdio.h>
 
-#define MAX_BOUNCES 10
-#define TABLE_SIZE 10
+#define MAX_BOUNCES 10   // numero di rimbalzi dopo cui la partita termina
+#define TABLE_SIZE 10    // lunghezza del tavolo (in caratteri) nella stampa ASCII
 
-// Function to render ASCII visual table of the ping pong table
+// Funzione che disegna in ASCII il tavolo da ping pong con la pallina
 void print_ascii_table(int player_rank, int ball_pos, int bounce_count) {
-    printf("Bounce #%2d | ", bounce_count);
+    printf("Rimbalzo #%2d | ", bounce_count);
     if (player_rank == 0) {
-        printf("Player 1 (Rank 0) [ ");
+        printf("Giocatore 1 (Rank 0) [ ");
     } else {
-        printf("Player 2 (Rank 1) [ ");
+        printf("Giocatore 2 (Rank 1) [ ");
     }
 
     for (int i = 0; i < TABLE_SIZE; i++) {
         if (i == ball_pos) {
-            printf("o"); // Ball position
+            printf("o"); // Posizione della pallina
         } else {
             printf(".");
         }
     }
-    printf(" ] -> Hit to Player %d\n", (player_rank == 0) ? 2 : 1);
+    printf(" ] -> Colpo verso il Giocatore %d\n", (player_rank == 0) ? 2 : 1);
 }
 
 int main(int argc, char** argv) {
     int rank, size;
 
     MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);   // identificativo di questo processo
+    MPI_Comm_size(MPI_COMM_WORLD, &size);   // numero totale di processi
 
-    // CHECK number of processes to avoid execution errors
+    // CONTROLLO sul numero di processi per evitare errori di esecuzione
     if (size < 2) {
         if (rank == 0) {
-            printf("Error: This program requires at least 2 processes.\n");
+            printf("Errore: questo programma richiede almeno 2 processi.\n");
         }
         MPI_Finalize();
         return 0;
     }
 
+    // L'avversario: il rank 0 gioca contro il rank 1 e viceversa
     int partner_rank = (rank == 0) ? 1 : 0;
     
     /* 
-     * ball_data array structure:
-     * ball_data[0]: bounce_count
-     * ball_data[1]: ball_position (0 for P1 side, TABLE_SIZE - 1 for P2 side)
+     * Struttura dell'array ball_data:
+     * ball_data[0]: bounce_count (rimbalzi)
+     * ball_data[1]: ball_position (0 per il lato di P1, TABLE_SIZE - 1 per il lato di P2)
      */
     int ball_data[2] = {0, 0};
 
     if (rank == 0 || rank == 1) {
         while (ball_data[0] < MAX_BOUNCES) {
+            // Tocca a chi ha rank uguale alla parita' del contatore: 0, 1, 0, 1, ...
             if (rank == ball_data[0] % 2) {
-                // SENDER TURN: increment score/bounce and set ball position
+                // TURNO DI CHI COLPISCE: incrementa i rimbalzi e imposta la posizione della pallina
                 ball_data[0]++;
                 ball_data[1] = (rank == 0) ? 0 : (TABLE_SIZE - 1);
 
-                // Print visual representation before serving/hitting back
+                // Stampa la rappresentazione visiva prima di battere/rispondere
                 print_ascii_table(rank, ball_data[1], ball_data[0]);
 
                 /*
-                 * MPI_Send parameters breakdown:
-                 * 1. ball_data      : Pointer to payload buffer
-                 * 2. 2              : Number of integers sent
-                 * 3. MPI_INT        : Data type
-                 * 4. partner_rank   : Destination rank (0 or 1)
-                 * 5. 0              : Message tag
-                 * 6. MPI_COMM_WORLD : Communicator
+                 * Significato dei parametri di MPI_Send:
+                 * 1. ball_data      : puntatore al buffer con i dati
+                 * 2. 2              : numero di interi inviati
+                 * 3. MPI_INT        : tipo di dato
+                 * 4. partner_rank   : rank del destinatario (0 o 1)
+                 * 5. 0              : tag del messaggio
+                 * 6. MPI_COMM_WORLD : communicator
                  */
                 MPI_Send(ball_data, 2, MPI_INT, partner_rank, 0, MPI_COMM_WORLD);
 
             } else {
-                // RECEIVER TURN: wait for incoming ball
+                // TURNO DI CHI RICEVE: attende la pallina in arrivo
                 /*
-                 * MPI_Recv parameters breakdown:
-                 * 1. ball_data      : Pointer to buffer where data is stored
-                 * 2. 2              : Max elements to receive
-                 * 3. MPI_INT        : Data type
-                 * 4. partner_rank   : Expected sender rank
-                 * 5. 0              : Message tag
-                 * 6. MPI_COMM_WORLD : Communicator
-                 * 7. MPI_STATUS_IGNORE: Status struct ignore pointer
+                 * Significato dei parametri di MPI_Recv:
+                 * 1. ball_data      : puntatore al buffer dove salvare i dati
+                 * 2. 2              : numero massimo di elementi da ricevere
+                 * 3. MPI_INT        : tipo di dato
+                 * 4. partner_rank   : rank del mittente atteso
+                 * 5. 0              : tag del messaggio
+                 * 6. MPI_COMM_WORLD : communicator
+                 * 7. MPI_STATUS_IGNORE: puntatore allo status (ignorato)
                  */
                 MPI_Recv(ball_data, 2, MPI_INT, partner_rank, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
             }
@@ -104,11 +106,12 @@ int main(int argc, char** argv) {
 
         if (rank == 0) {
             printf("\n=======================================================\n");
-            printf("GAME OVER! Ping-Pong rally completed with %d bounces.\n", MAX_BOUNCES);
+            printf("FINE PARTITA! Scambio di ping pong completato con %d rimbalzi.\n", MAX_BOUNCES);
             printf("=======================================================\n");
         }
     } else {
-        printf("Process %d: Spectator (Idle)\n", rank);
+        // Gli altri processi (rank >= 2) non giocano
+        printf("Processo %d: Spettatore (inattivo)\n", rank);
     }
 
     MPI_Finalize();

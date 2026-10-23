@@ -1,20 +1,20 @@
 /*
-Implement a “broadcast” by using send and receive
+Implementare un "broadcast" usando send e receive
 *//*
-========================EXERCISE 8: CUSTOM BROADCAST=============================================================================
-Communication hands-on
-Implement a "broadcast" operation using point-to-point MPI send and receive calls.
-Process "p" (root) shares the content of a variable "a" with all other processes.
+========================ESERCIZIO 8: BROADCAST PERSONALIZZATO====================================================================
+Esercitazione sulla comunicazione
+Implementare una operazione di "broadcast" usando chiamate MPI punto-punto send e receive.
+Il processo "p" (root) condivide il contenuto di una variabile "a" con tutti gli altri processi.
 
-======================LOGIC:==========================================================================================================
-- Define a root process "root" (e.g., process 0) that holds the payload variable "a".
-- If rank == root:
-    1. Initialize variable "a".
-    2. Loop over all other processes (from 0 to size - 1, skipping root itself).
-    3. Send the content of variable "a" to each process using MPI_Send.
-- Else (rank != root):
-    1. Receive the content of variable "a" directly from process "root" using MPI_Recv.
-    2. Print the received value to confirm broadcast receipt.
+======================LOGICA:==========================================================================================================
+- Si definisce un processo radice "root" (es. il processo 0) che possiede la variabile "a".
+- Se rank == root:
+    1. Inizializza la variabile "a".
+    2. Scorre tutti gli altri processi (da 0 a size - 1, saltando root stesso).
+    3. Invia il contenuto di "a" a ciascuno con MPI_Send.
+- Altrimenti (rank != root):
+    1. Riceve il contenuto di "a" direttamente dal processo "root" con MPI_Recv.
+    2. Stampa il valore ricevuto per confermare la ricezione del broadcast.
 */
 
 #include <mpi.h>
@@ -23,56 +23,56 @@ Process "p" (root) shares the content of a variable "a" with all other processes
 int main(int argc, char** argv) {
     int rank, size;
     int a = 0;
-    int root = 0; // Rank of root process performing the broadcast
+    int root = 0; // Rank del processo root che esegue il broadcast
 
     MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);   // identificativo di questo processo
+    MPI_Comm_size(MPI_COMM_WORLD, &size);   // numero totale di processi
 
-    // CHECK number of processes to avoid execution errors
+    // CONTROLLO sul numero di processi per evitare errori di esecuzione
     if (size < 2) {
         if (rank == 0) {
-            printf("Error: This program requires at least 2 processes.\n");
+            printf("Errore: questo programma richiede almeno 2 processi.\n");
         }
         MPI_Finalize();
         return 0;
     }
 
     if (rank == root) {
-        // Root process initializes payload variable "a"
-        a = 100; // Payload value
-        printf("Process %d (root): broadcasting variable a = %d to all processes\n", root, a);
+        // Il root inizializza la variabile "a"
+        a = 100; // Valore da trasmettere
+        printf("Processo %d (root): trasmetto la variabile a = %d a tutti i processi\n", root, a);
 
-        // Iterate through all processes and send data to everyone except root
+        // Scorre tutti i processi e invia il dato a tutti tranne che al root
         for (int i = 0; i < size; i++) {
             if (i != root) {
                 /* 
-                 * MPI_Send parameters breakdown:
-                 * 1. &a           : Pointer to buffer containing data
-                 * 2. 1            : Number of elements
-                 * 3. MPI_INT      : Data type
-                 * 4. i            : Destination process rank
-                 * 5. 0            : Message tag
-                 * 6. MPI_COMM_WORLD: Communicator group
+                 * Significato dei parametri di MPI_Send:
+                 * 1. &a           : puntatore al buffer con i dati
+                 * 2. 1            : numero di elementi
+                 * 3. MPI_INT      : tipo di dato
+                 * 4. i            : rank del destinatario
+                 * 5. 0            : tag del messaggio
+                 * 6. MPI_COMM_WORLD: communicator
                  */
                 MPI_Send(&a, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
-                printf("Process %d (root): sent variable a = %d to process %d\n", root, a, i);
+                printf("Processo %d (root): inviata la variabile a = %d al processo %d\n", root, a, i);
             }
         }
     } else {
-        // Worker processes receive broadcast data directly from root
+        // I processi worker ricevono il dato del broadcast direttamente dal root
         /* 
-         * MPI_Recv parameters breakdown:
-         * 1. &a           : Pointer to buffer where data will be saved
-         * 2. 1            : Max elements to receive
-         * 3. MPI_INT      : Data type
-         * 4. root         : Source process rank expected
-         * 5. 0            : Message tag
-         * 6. MPI_COMM_WORLD: Communicator group
-         * 7. MPI_STATUS_IGNORE: Status struct ignore pointer
+         * Significato dei parametri di MPI_Recv:
+         * 1. &a           : puntatore al buffer dove salvare i dati
+         * 2. 1            : numero massimo di elementi da ricevere
+         * 3. MPI_INT      : tipo di dato
+         * 4. root         : rank del mittente atteso
+         * 5. 0            : tag del messaggio
+         * 6. MPI_COMM_WORLD: communicator
+         * 7. MPI_STATUS_IGNORE: puntatore allo status (ignorato)
          */
         MPI_Recv(&a, 1, MPI_INT, root, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        printf("Process %d: received broadcast variable a = %d from root process %d\n", rank, a, root);
+        printf("Processo %d: ricevuta la variabile di broadcast a = %d dal processo root %d\n", rank, a, root);
     }
 
     MPI_Finalize();

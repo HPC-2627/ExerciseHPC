@@ -1,19 +1,19 @@
 /*
-========================EXERCISE=================================================================================================
-Communication hands-on
-Design a broadcast solution by using send and receive calls
-What we expect: a process "p" wants to share the content of a variable "a" with all the other processes.
+========================ESERCIZIO=================================================================================================
+Esercitazione sulla comunicazione
+Progettare un broadcast usando solo chiamate send e receive.
+Cosa ci si aspetta: un processo "p" vuole condividere il contenuto di una variabile "a" con tutti gli altri processi.
 
 
-======================LOGIC:==========================================================================================================
-- Define a root process "p" (e.g., process 0) that holds the variable "a".
-- If you are Process "p" (rank == p):
-    1. Initialize the variable "a".
-    2. Loop over all other processes (from 0 to size - 1, skipping process p itself).
-    3. Send the content of variable "a" to each process using MPI_Send.
-- Else (rank != p):
-    1. Receive the content of variable "a" directly from process "p" using MPI_Recv.
-    2. Print the received value to confirm receipt.
+======================LOGICA:==========================================================================================================
+- Si definisce un processo radice "p" (es. il processo 0) che possiede la variabile "a".
+- Se sei il processo "p" (rank == p):
+    1. Inizializzi la variabile "a".
+    2. Scorri tutti gli altri processi (da 0 a size - 1, saltando p stesso).
+    3. Invii il contenuto di "a" a ciascuno con MPI_Send.
+- Altrimenti (rank != p):
+    1. Ricevi il contenuto di "a" direttamente dal processo "p" con MPI_Recv.
+    2. Stampi il valore ricevuto per confermare la ricezione.
 */
 #include <mpi.h>
 #include <stdio.h>
@@ -21,57 +21,57 @@ What we expect: a process "p" wants to share the content of a variable "a" with 
 int main(int argc, char** argv) {
     int rank, size;
     int a = 0;
-    int root = 0; // Rank of process "p" that performs the broadcast
+    int root = 0; // Rank del processo "p" che esegue il broadcast
 
     MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);   // identificativo di questo processo
+    MPI_Comm_size(MPI_COMM_WORLD, &size);   // numero totale di processi
 
-    // CHECK number of processes to avoid execution errors
+    // CONTROLLO sul numero di processi per evitare errori di esecuzione
     if (size < 2) {
         if (rank == 0) {
-            printf("Error: This program requires at least 2 processes.\n");
+            printf("Errore: questo programma richiede almeno 2 processi.\n");
         }
         MPI_Finalize();
         return 0;
     }
 
     if (rank == root) {
-        // Process "p" initializes variable "a"
-        a = 42; // Example payload value
-        printf("Process %d (root): broadcasting variable a = %d to all other processes\n", root, a);
+        // Il processo "p" inizializza la variabile "a"
+        a = 42; // Valore di esempio da trasmettere
+        printf("Processo %d (root): trasmetto la variabile a = %d a tutti gli altri processi\n", root, a);
 
-        // Iterate through all processes and send data to everyone except self
+        // Scorre tutti i processi e invia il dato a tutti tranne che a se stesso
         for (int i = 0; i < size; i++) {
             if (i != root) {
                 /* 
-                 * MPI_Send parameters breakdown:
-                 * 1. &a           : Pointer to the buffer containing the data to send
-                 * 2. 1            : Number of elements to send
-                 * 3. MPI_INT      : Type of the elements in the buffer
-                 * 4. i            : Rank of the destination process (target)
-                 * 5. 0            : Message tag (used to distinguish different types of messages)
-                 * 6. MPI_COMM_WORLD: Communicator (the scope/group of processes)
+                 * Significato dei parametri di MPI_Send:
+                 * 1. &a           : puntatore al buffer che contiene i dati da inviare
+                 * 2. 1            : numero di elementi da inviare
+                 * 3. MPI_INT      : tipo degli elementi nel buffer
+                 * 4. i            : rank del processo destinatario
+                 * 5. 0            : tag del messaggio (serve a distinguere tipi diversi di messaggi)
+                 * 6. MPI_COMM_WORLD: communicator (il gruppo di processi coinvolti)
                  */
                 MPI_Send(&a, 1, MPI_INT, i, 0, MPI_COMM_WORLD);
-                printf("Process %d: sent variable a = %d to process %d\n", root, a, i);
+                printf("Processo %d: inviata la variabile a = %d al processo %d\n", root, a, i);
             }
         }
     } else {
-        // All other processes receive data directly from process "p"
+        // Tutti gli altri processi ricevono il dato direttamente dal processo "p"
         
         /* 
-         * MPI_Recv parameters breakdown:
-         * 1. &a           : Pointer to the buffer where the received data will be stored
-         * 2. 1            : Maximum number of elements to receive
-         * 3. MPI_INT      : Type of the elements in the buffer
-         * 4. root         : Rank of the source process (who we expect the message from)
-         * 5. 0            : Message tag (must match the sender's tag)
-         * 6. MPI_COMM_WORLD: Communicator
-         * 7. MPI_STATUS_IGNORE: Pointer to a status object to get info about the message (ignored here)
+         * Significato dei parametri di MPI_Recv:
+         * 1. &a           : puntatore al buffer dove verranno salvati i dati ricevuti
+         * 2. 1            : numero massimo di elementi da ricevere
+         * 3. MPI_INT      : tipo degli elementi nel buffer
+         * 4. root         : rank del processo mittente (da chi ci aspettiamo il messaggio)
+         * 5. 0            : tag del messaggio (deve coincidere con quello del mittente)
+         * 6. MPI_COMM_WORLD: communicator
+         * 7. MPI_STATUS_IGNORE: puntatore allo status con le info sul messaggio (qui ignorato)
          */
         MPI_Recv(&a, 1, MPI_INT, root, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        printf("Process %d: received variable a = %d from process %d\n", rank, a, root);
+        printf("Processo %d: ricevuta la variabile a = %d dal processo %d\n", rank, a, root);
     }
 
     MPI_Finalize();
