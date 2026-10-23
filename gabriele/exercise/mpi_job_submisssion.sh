@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#PBS -l select=4:ncpus=4:mem=2gb
+
+#PBS -l walltime=0:00:30
+
+#PBS -q shortCPUQ
+
+module load MPICH/3.4.2-GCC-10.3.0
+
+mpicc -o ping-pong ping-pong.c
+
+mpiexec -n 16 ./mpi_wrapper.sh ./ping-pong
