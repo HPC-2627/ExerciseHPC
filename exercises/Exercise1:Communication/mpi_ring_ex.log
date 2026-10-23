@@ -1,0 +1,17 @@
+rm -f ring_mpi *.out *.err
+mpicc -O3 Exercise1Communication.c -o ring_mpi
+Process 0: sending data 10 to process 1
+Process 1: received data 10 from process 0
+Process 1: forwarded data 10 to process 2
+Process 2: received data 10 from process 1
+Process 2: forwarded data 10 to process 3
+Process 3: received data 10 from process 2
+Process 3: forwarded data 10 to process 4
+Process 4: received data 10 from process 3
+Process 4: forwarded data 10 to process 5
+Process 5: received data 10 from process 4
+Process 5: forwarded data 10 to process 6
+Process 6: received data 10 from process 5
+Process 6: forwarded data 10 to process 7
+Process 7: received data 10 from process 6
+Process 7 (last): end of the chain, final data received = 10

@@ -1,0 +1,17 @@
+rm -f broadcast_mpi *.out *.err
+mpicc -O3 Exercise2Communication.c -o broadcast_mpi
+Process 7: received variable a = 42 from process 0
+Process 0 (root): broadcasting variable a = 42 to all other processes
+Process 0: sent variable a = 42 to process 1
+Process 0: sent variable a = 42 to process 2
+Process 0: sent variable a = 42 to process 3
+Process 0: sent variable a = 42 to process 4
+Process 0: sent variable a = 42 to process 5
+Process 0: sent variable a = 42 to process 6
+Process 0: sent variable a = 42 to process 7
+Process 1: received variable a = 42 from process 0
+Process 2: received variable a = 42 from process 0
+Process 3: received variable a = 42 from process 0
+Process 4: received variable a = 42 from process 0
+Process 5: received variable a = 42 from process 0
+Process 6: received variable a = 42 from process 0

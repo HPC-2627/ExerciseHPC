@@ -1,0 +1,18 @@
+rm -f reduce_mpi *.out *.err
+mpicc -O3 Exercise9TryMultiNode.c -o reduce_mpi
+Process 0: local value = 1
+Process 0 (root): received value 2 from process 1
+Process 0 (root): received value 3 from process 2
+Process 0 (root): received value 4 from process 3
+Process 1: local value = 2
+Process 2: local value = 3
+Process 3: local value = 4
+Process 6: local value = 7
+Process 7: local value = 8
+Process 5: local value = 6
+Process 4: local value = 5
+Process 0 (root): received value 5 from process 4
+Process 0 (root): received value 6 from process 5
+Process 0 (root): received value 7 from process 6
+Process 0 (root): received value 8 from process 7
+Process 0 (root): Total sum (reduce result) = 36

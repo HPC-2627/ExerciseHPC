@@ -1,0 +1,19 @@
+rm -f open_close_ring_mpi *.out *.err
+mpicc -O3 Exercise4OpenClosedRing.c -o open_close_ring_mpi
+Process 0: Starting ring with token = 100
+Process 0: sent token = 100 to process 1
+Process 1: received token = 100 from process 0
+Process 1: sent updated token = 101 to process 2
+Process 2: received token = 101 from process 1
+Process 2: sent updated token = 103 to process 3
+Process 3: received token = 103 from process 2
+Process 3: sent updated token = 106 to process 4
+Process 4: received token = 106 from process 3
+Process 4: sent updated token = 110 to process 5
+Process 5: received token = 110 from process 4
+Process 5: sent updated token = 115 to process 6
+Process 6: received token = 115 from process 5
+Process 6: sent updated token = 121 to process 7
+Process 7: received token = 121 from process 6
+Process 7: sent updated token = 128 to process 0
+Process 0: received completed ring token = 128 from process 7

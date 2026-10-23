@@ -1,0 +1,13 @@
+rm -f allreduce_mpi *.out *.err
+mpicc -O3 Exercise6AllReduce.c -o allreduce_mpi
+Process 1 (ALLREDUCE confirmed): global_sum = 36
+Process 2 (ALLREDUCE confirmed): global_sum = 36
+Process 3 (ALLREDUCE confirmed): global_sum = 36
+Process 4 (ALLREDUCE confirmed): global_sum = 36
+Process 5 (ALLREDUCE confirmed): global_sum = 36
+Process 6 (ALLREDUCE confirmed): global_sum = 36
+Process 7 (ALLREDUCE confirmed): global_sum = 36
+--- REDUCE COMPLETED AT ROOT (Process 0) ---
+Global Sum = 36 | Min = 1 | Max = 8 | Avg = 4.50
+
+Process 0 (ALLREDUCE confirmed): global_sum = 36

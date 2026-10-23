@@ -1,0 +1,16 @@
+rm -f pingpong_game_mpi *.out *.err
+mpicc -O3 Exercise7PingPongAd.c -o pingpong_game_mpi
+Bounce # 2 | Player 2 (Rank 1) [ .........o ] -> Hit to Player 1
+Bounce # 4 | Player 2 (Rank 1) [ .........o ] -> Hit to Player 1
+Bounce # 6 | Player 2 (Rank 1) [ .........o ] -> Hit to Player 1
+Bounce # 8 | Player 2 (Rank 1) [ .........o ] -> Hit to Player 1
+Bounce #10 | Player 2 (Rank 1) [ .........o ] -> Hit to Player 1
+Bounce # 1 | Player 1 (Rank 0) [ o......... ] -> Hit to Player 2
+Bounce # 3 | Player 1 (Rank 0) [ o......... ] -> Hit to Player 2
+Bounce # 5 | Player 1 (Rank 0) [ o......... ] -> Hit to Player 2
+Bounce # 7 | Player 1 (Rank 0) [ o......... ] -> Hit to Player 2
+Bounce # 9 | Player 1 (Rank 0) [ o......... ] -> Hit to Player 2
+
+=======================================================
+GAME OVER! Ping-Pong rally completed with 10 bounces.
+=======================================================

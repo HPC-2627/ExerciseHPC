@@ -1,0 +1,22 @@
+rm -f pingpong_mpi *.out *.err
+mpicc -O3 Exercise3PingPong.c -o pingpong_mpi
+Process 0 sent ping_pong_count = 1 to Process 1
+Process 0 received ping_pong_count = 2 from Process 1
+Process 0 sent ping_pong_count = 3 to Process 1
+Process 0 received ping_pong_count = 4 from Process 1
+Process 0 sent ping_pong_count = 5 to Process 1
+Process 0 received ping_pong_count = 6 from Process 1
+Process 0 sent ping_pong_count = 7 to Process 1
+Process 0 received ping_pong_count = 8 from Process 1
+Process 0 sent ping_pong_count = 9 to Process 1
+Process 0 received ping_pong_count = 10 from Process 1
+Process 1 received ping_pong_count = 1 from Process 0
+Process 1 sent ping_pong_count = 2 to Process 0
+Process 1 received ping_pong_count = 3 from Process 0
+Process 1 sent ping_pong_count = 4 to Process 0
+Process 1 received ping_pong_count = 5 from Process 0
+Process 1 sent ping_pong_count = 6 to Process 0
+Process 1 received ping_pong_count = 7 from Process 0
+Process 1 sent ping_pong_count = 8 to Process 0
+Process 1 received ping_pong_count = 9 from Process 0
+Process 1 sent ping_pong_count = 10 to Process 0

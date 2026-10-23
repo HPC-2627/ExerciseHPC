@@ -1,0 +1,5 @@
+rm -f broadcast_mpi *.out *.err
+mpicc -O3 Exercise8BroadcastTreeStructured.c -o broadcast_mpi
+Process 0 (root): broadcasting variable a = 100 to all processes
+Process 0 (root): sent variable a = 100 to process 1
+Process 1: received broadcast variable a = 100 from root process 0
