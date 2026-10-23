@@ -1,12 +1,12 @@
 #!/bin/bash
-# Sottomette lo stesso benchmark con le 4 strategie di posizionamento PBS viste a lezione:
+# Submits the same benchmark with the 4 PBS placement strategies seen in class:
 #   pack, scatter, pack:excl, scatter:excl
-# Ogni job scrive il proprio file results_<posizionamento>.csv.
-# Va eseguito dalla cartella del progetto (dove si trova run.sh).
+# Each job writes its own results_<placement>.csv file.
+# Must be run from the project folder (where run.sh is).
 for PLACE in pack scatter pack:excl scatter:excl; do
-    TAG=${PLACE//:/_}      # i ':' non vanno bene nei nomi di file: scatter:excl -> scatter_excl
-    # -N nome del job; -l risorse (2 chunk da 1 core) e posizionamento;
-    # -o/-e file di output ed errori; -v passa la variabile PLACE a run.sh
+    TAG=${PLACE//:/_}      # ':' is not suitable in file names: scatter:excl -> scatter_excl
+    # -N job name; -l resources (2 chunks of 1 core) and placement;
+    # -o/-e output and error files; -v passes the PLACE variable to run.sh
     qsub -N pp_${TAG} \
          -l select=2:ncpus=1:mem=2gb -l place=${PLACE} \
          -o pp_${TAG}.log -e pp_${TAG}.err \
