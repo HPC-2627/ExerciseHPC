@@ -1,26 +1,26 @@
 #!/bin/bash
-# Wrapper eseguito da mpirun su ogni rank: forza UCX (la libreria di trasporto
-# usata da OpenMPI) a comunicare solo via Ethernet/TCP, sull'interfaccia di rete
-# che porta alla rete del cluster.
+# Wrapper run by mpirun on every rank: forces UCX (the transport library
+# used by OpenMPI) to communicate only via Ethernet/TCP, on the network interface
+# that leads to the cluster network.
 
-# Trova l'interfaccia di rete usata per raggiungere 192.168.108.1:
-# "ip route get" stampa la rotta e awk prende la parola che segue "dev".
+# Find the network interface used to reach 192.168.108.1:
+# "ip route get" prints the route and awk takes the word following "dev".
 IFACE=$(ip -4 route get 192.168.108.1 |
         awk '{for (i=1;i<=NF;i++) if ($i=="dev") {print $(i+1); exit}}')
 
-# Se non si trova nessuna interfaccia (o e' il loopback "lo") non ha senso proseguire
+# If no interface is found (or it is the loopback "lo") there is no point in continuing
 if [[ -z "$IFACE" || "$IFACE" == "lo" ]]; then
     echo "ERRORE: nessuna interfaccia Ethernet valida trovata su $(hostname)" >&2
     exit 1
 fi
 
-# Trasporti UCX ammessi: tcp (rete), self (stesso processo), sm (memoria condivisa)
+# Allowed UCX transports: tcp (network), self (same process), sm (shared memory)
 export UCX_TLS=tcp,self,sm
-# Usa esclusivamente l'interfaccia trovata sopra
+# Use exclusively the interface found above
 export UCX_NET_DEVICES="$IFACE"
 
-# Messaggio di debug (finisce nel file .err): mostra quale interfaccia usa ogni nodo
+# Debug message (ends up in the .err file): shows which interface each node uses
 echo "$(hostname): UCX_NET_DEVICES=$UCX_NET_DEVICES" >&2
 
-# Sostituisce questo script con il programma vero (passato come argomenti)
+# Replace this script with the real program (passed as arguments)
 exec "$@"
