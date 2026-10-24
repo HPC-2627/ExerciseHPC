@@ -10,6 +10,6 @@ module load MPICH/3.4.2-GCC-10.3.0
 
 cd "$PBS_O_WORKDIR" || exit 1
 
-mpicc -O2 -o benchmark benchmark.c
+mpicc -O2 -o benchmark benchmark.c -lm
 
-mpiexec -n 2 ./mpi_wrapper.sh ./benchmark
+mpiexec -n 2 ./mpi_wrapper.sh ./benchmark 20 200 20
